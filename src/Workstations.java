@@ -6,6 +6,8 @@ public class Workstations implements Runnable{
     private HashMap<ComponentType,Integer> ComponentVsHolding = new HashMap<>();
     private ArrayList<Double> TimeToProduce = new ArrayList<>();
     private Boolean Running = true;
+    private int ProductProduced = 0;
+    private double SumOfTimeToProduce = 0;
 
     public Workstations(ProductType ProductToProduce, ArrayList<Double> Times){
         //Initialize the variables to change which workstation it is
@@ -52,13 +54,19 @@ public class Workstations implements Runnable{
                 return 0;
             }
         }
-        /*
-            Here will be found the implementation of the
-            time to produce the product
-         */
+
+        double time = System.currentTimeMillis();
+        try{
+            Thread.sleep((long) (TimeToProduce.remove(0) * 1L));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        SumOfTimeToProduce = SumOfTimeToProduce + (System.currentTimeMillis() - time);
+
         for(ComponentType componentType : ComponentVsHolding.keySet()){
             ComponentVsHolding.put(componentType, ComponentVsHolding.get(componentType) - 1);
         }
+        ProductProduced++;
         return 0;
     }
 
@@ -85,6 +93,18 @@ public class Workstations implements Runnable{
 
     public void setComponentVsHolding(HashMap<ComponentType, Integer> componentVsHolding) {
         ComponentVsHolding = componentVsHolding;
+    }
+
+    public double getSumOfTimeToProduce() {
+        return SumOfTimeToProduce;
+    }
+
+    public int getProductProduced() {
+        return ProductProduced;
+    }
+
+    public double getAverageTime(){
+        return SumOfTimeToProduce/ProductProduced;
     }
 
     @Override

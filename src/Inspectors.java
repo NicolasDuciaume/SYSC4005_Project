@@ -6,6 +6,10 @@ public class Inspectors implements Runnable{
     private HashMap<ComponentType, ArrayList<Double>> ComponentVsTime;
     private ArrayList<Workstations> workstations;
     private boolean Running = true;
+    private int Component1_inspected = 0;
+    private int Component2_inspected = 0;
+    private int Component3_inspected = 0;
+    private double BlockedTime = 0;
 
     //The only reason for a hashmap here is that inspector 2 produces two components with separate data times between them
     public Inspectors(HashMap<ComponentType, ArrayList<Double>> ComponentVsTime, ArrayList<Workstations> workstations){
@@ -17,6 +21,7 @@ public class Inspectors implements Runnable{
         //goes from priority level to find which workstation to give the component
         for(Workstations workstation : workstations)
         {
+
             if(workstation.getComponentVsHolding().containsKey(componentType)){
                 if(workstation.getComponentVsHolding().get(componentType) == 0){
                     return workstations.indexOf(workstation);
@@ -50,7 +55,7 @@ public class Inspectors implements Runnable{
 
 
     //Setters and getters
-    
+
     public void setRunning(boolean running) {
         Running = running;
     }
@@ -75,24 +80,75 @@ public class Inspectors implements Runnable{
         return workstations;
     }
 
+    public int getComponent1_inspected() {
+        return Component1_inspected;
+    }
+
+    public int getComponent2_inspected() {
+        return Component2_inspected;
+    }
+
+    public int getComponent3_inspected() {
+        return Component3_inspected;
+    }
+
+    public double getBlockedTime() {
+        return BlockedTime;
+    }
+
+    public double getAverageBlockedTime(){
+        int inspect = Component1_inspected + Component2_inspected + Component3_inspected;
+        return BlockedTime/inspect;
+    }
 
     @Override
     public void run() {
         while(Running){
             ComponentType send = getNewComponent();
-            /*
-                Here the inspection time would be placed per component
-             */
 
+            try{
+                Thread.sleep((long) (ComponentVsTime.get(send).remove(0)*1L));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            long blocked = 0;
             int priority = getWorkstationPriority(send);
             if(priority == -1){
+                blocked = System.currentTimeMillis();
                 while (priority == -1){
-                    // The inspector is blocked in this case
                     priority = getWorkstationPriority(send);
                 }
             }
+            BlockedTime = BlockedTime + (System.currentTimeMillis() - blocked);
 
             workstations.get(priority).put(send);
+            if(send == ComponentType.C1){
+                Component1_inspected++;
+            }
+            else if(send == ComponentType.C2){
+                Component2_inspected++;
+            }
+            else if(send == ComponentType.C3){
+                Component3_inspected++;
+            }
+
+            if(ComponentVsTime.containsKey(ComponentType.C1)){
+                if(ComponentVsTime.get(ComponentType.C1).isEmpty()){
+                    setRunning(false);
+                }
+            }
+            else{
+                if((ComponentVsTime.get(ComponentType.C2).isEmpty()) && !(ComponentVsTime.get(ComponentType.C3).isEmpty())){
+                    ComponentVsTime.remove(ComponentType.C2);
+                }
+                else if(!(ComponentVsTime.get(ComponentType.C2).isEmpty()) && (ComponentVsTime.get(ComponentType.C3).isEmpty())){
+                    ComponentVsTime.remove(ComponentType.C3);
+                }
+                else if((ComponentVsTime.get(ComponentType.C2).isEmpty()) && (ComponentVsTime.get(ComponentType.C3).isEmpty())){
+                    setRunning(false);
+                }
+            }
         }
     }
 }
