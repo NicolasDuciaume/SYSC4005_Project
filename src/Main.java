@@ -20,15 +20,15 @@ public class Main implements Runnable{
     public Main(){
         //as we aren't implementing the timing yet
         //I will be giving a dummy array of time
-        workstation1 = new Workstations(ProductType.P1, (ArrayList<Double>) getData(new  File("D:/SYSC4005_Project/ws1.dat")));
-        workstation2 = new Workstations(ProductType.P2,(ArrayList<Double>) getData(new  File("D:/SYSC4005_Project/ws2.dat")));
-        workstation3 = new Workstations(ProductType.P3,(ArrayList<Double>) getData(new  File("D:/SYSC4005_Project/ws3.dat")));
+        workstation1 = new Workstations(ProductType.P1, (ArrayList<Double>) randomize(getData(new  File("D:/SYSC4005_Project/ws1.dat"))));
+        workstation2 = new Workstations(ProductType.P2,(ArrayList<Double>) randomize(getData(new  File("D:/SYSC4005_Project/ws2.dat"))));
+        workstation3 = new Workstations(ProductType.P3,(ArrayList<Double>) randomize(getData(new  File("D:/SYSC4005_Project/ws3.dat"))));
 
         HashMap<ComponentType, ArrayList<Double>> HashforInspect1 = new HashMap<>();
-        HashforInspect1.put(ComponentType.C1,(ArrayList<Double>) getData(new  File("D:/SYSC4005_Project/servinsp1.dat")));
+        HashforInspect1.put(ComponentType.C1,(ArrayList<Double>) randomize(getData(new  File("D:/SYSC4005_Project/servinsp1.dat"))));
         HashMap<ComponentType, ArrayList<Double>> HashforInspect2 = new HashMap<>();
-        HashforInspect2.put(ComponentType.C2,(ArrayList<Double>) getData(new  File("D:/SYSC4005_Project/servinsp22.dat")));
-        HashforInspect2.put(ComponentType.C3,(ArrayList<Double>) getData(new  File("D:/SYSC4005_Project/servinsp23.dat")));
+        HashforInspect2.put(ComponentType.C2,(ArrayList<Double>) randomize(getData(new  File("D:/SYSC4005_Project/servinsp22.dat"))));
+        HashforInspect2.put(ComponentType.C3,(ArrayList<Double>) randomize(getData(new  File("D:/SYSC4005_Project/servinsp23.dat"))));
 
         ArrayList<Workstations> ArrayforInspect1 = new ArrayList<>();
         ArrayforInspect1.add(workstation1);
@@ -52,6 +52,22 @@ public class Main implements Runnable{
     public static void main(String[]  args){
         Thread mainThread = new Thread(new Main());
         mainThread.start();
+    }
+
+    private List<Double> randomize(List<Double> data){
+        List<Double> newList = new ArrayList<>();
+        Random rand = new Random();
+        double sum = 0;
+        for(Double val : data){
+            sum = sum + val;
+        }
+        double average = sum / data.size();
+
+        for(Double val : data){
+            newList.add((-1*average) * Math.log(1- rand.nextDouble()));
+        }
+
+        return newList;
     }
 
     private static List<Double> getData(File file){
@@ -82,7 +98,6 @@ public class Main implements Runnable{
         while(InspectThread1.isAlive() && InspectThread2.isAlive()){
 
         }
-
         time = System.currentTimeMillis() - time;
 
         inspector1.setRunning(false);
@@ -92,8 +107,11 @@ public class Main implements Runnable{
         workstation3.setRunning(false);
 
         System.out.println("Inspector 1 inspected:" + inspector1.getComponent1_inspected() + " of component 1");
+        System.out.println("Total Inspection Time for C1 is " + inspector1.getInspectionTime1() + " With the average being " + inspector1.getAverageInspectionTime1());
         System.out.println("Inspector 2 inspected:" + inspector2.getComponent2_inspected() + " of component 2");
+        System.out.println("Total Inspection Time for C2 is " + inspector2.getInspectionTime2() + " With the average being " + inspector2.getAverageInspectionTime2());
         System.out.println("Inspector 2 inspected:" + inspector2.getComponent3_inspected() + " of component 3");
+        System.out.println("Total Inspection Time for C3 is " + inspector2.getInspectionTime3() + " With the average being " + inspector2.getAverageInspectionTime3());
 
         System.out.println("Inspector 1 was blocked for " + inspector1.getBlockedTime() + " With the average being " + inspector1.getAverageBlockedTime());
         System.out.println("Inspector 2 was blocked for " + inspector2.getBlockedTime() + " With the average being " + inspector2.getAverageBlockedTime());
@@ -105,5 +123,7 @@ public class Main implements Runnable{
         System.out.println("WorkStation1 took " + workstation1.getSumOfTimeToProduce() + " to Produce P1 with an average of " + workstation1.getAverageTime());
         System.out.println("WorkStation2 took " + workstation2.getSumOfTimeToProduce() + " to Produce P2 with an average of " + workstation2.getAverageTime());
         System.out.println("WorkStation3 took " + workstation3.getSumOfTimeToProduce() + " to Produce P3 with an average of " + workstation3.getAverageTime());
+
+        System.out.println("Total Run time was " + time);
     }
 }
