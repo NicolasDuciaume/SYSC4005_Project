@@ -31,9 +31,9 @@ public class Main implements Runnable{
         HashforInspect2.put(ComponentType.C3,(ArrayList<Double>) randomize(getData(new  File("D:/SYSC4005_Project/servinsp23.dat"))));
 
         ArrayList<Workstations> ArrayforInspect1 = new ArrayList<>();
-        ArrayforInspect1.add(workstation1);
-        ArrayforInspect1.add(workstation2);
         ArrayforInspect1.add(workstation3);
+        ArrayforInspect1.add(workstation2);
+        ArrayforInspect1.add(workstation1);
         ArrayList<Workstations> ArrayforInspect2 = new ArrayList<>();
         ArrayforInspect2.add(workstation2);
         ArrayforInspect2.add(workstation3);
